@@ -1,0 +1,7 @@
+{
+  "name": "Copy of NIKONEKTI - Nyumba Chap",
+  "description": "A revolutionary rental housing marketplace for Tanzania connecting tenants and landlords directly.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
