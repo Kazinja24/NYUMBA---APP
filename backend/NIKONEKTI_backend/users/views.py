@@ -62,3 +62,37 @@ class LogoutAPIView(APIView):
             {"message": "Successfully logged out"},
             status=status.HTTP_200_OK
         )
+
+from rest_framework.permissions import IsAuthenticated
+from users.permissions import IsTenant
+
+class TenantDashboardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsTenant]
+
+    def get(self, request):
+        return Response(
+            {"message": "Welcome Tenant"},
+            status=status.HTTP_200_OK
+        )
+
+from users.permissions import IsLandlord
+
+class LandlordDashboardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsLandlord]
+
+    def get(self, request):
+        return Response(
+            {"message": "Welcome Landlord"},
+            status=status.HTTP_200_OK
+        )
+
+from users.permissions import IsAdmin
+
+class AdminDashboardAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request):
+        return Response(
+            {"message": "Admin access granted"},
+            status=status.HTTP_200_OK
+        )
