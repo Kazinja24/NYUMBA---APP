@@ -8,17 +8,89 @@ Base path (project): `/api/users/`
 ## Endpoints
 
 ### 1) Login
-- URL: `/api/users/login/`
-- Method: `POST`
-- Auth: none (returns token)
-- Payload (JSON):
 
-```json
 {
   "phone_number": "+255700000003",
   "password": "LoginPass123!"
 }
+
+## Properties API
+
+Base path: `/api/properties/`
+
+### Create Property
+- URL: `/api/properties/create/`
+- Method: `POST`
+- Auth: `Authorization: Token <key>` (Landlord only)
+- Payload (JSON):
+
+```json
+{
+  "title": "Spacious Apartment",
+  "description": "Two-bed, well lit",
+  "property_type": "APARTMENT",
+  "price": "150.00",
+  "location": "Downtown"
+}
 ```
+
+- Success (HTTP 201): returns created property object (see fields below).
+- Errors (HTTP 400): validation errors for missing fields, `price` <= 0, or blank strings.
+
+### List Properties
+- URL: `/api/properties/list/`
+- Method: `GET`
+- Auth: required (`IsAuthenticated`)
+- Returns list of available properties (filtered by `is_available=True`).
+
+### Retrieve Property
+- URL: `/api/properties/<int:pk>/`
+- Method: `GET`
+- Auth: required (`IsAuthenticated`)
+- Returns single property or 404 if not found.
+
+### Update Property
+- URL: `/api/properties/<int:pk>/`
+- Method: `PUT`
+- Auth: admin users only (`IsAdmin`)
+- Payload: full property object; validators same as create.
+- Success: HTTP 200 with updated object. Unauthorized users get HTTP 403.
+
+### Delete Property
+- URL: `/api/properties/<int:pk>/`
+- Method: `DELETE`
+- Auth: admin users only (`IsAdmin`)
+- Success: HTTP 204. Unauthorized users get HTTP 403.
+
+### Property fields (response)
+- `id`, `title`, `description`, `property_type`, `price`, `location`, `is_available`, `owner_phone`, `created_at`
+
+## Properties unit tests & results
+- Tests added in `properties/tests.py` covering:
+  - Create property (landlord) — passed
+  - Create unauthenticated — expected 401 — passed
+  - List requires auth (unauthenticated 401, authenticated 200) — passed
+  - Retrieve property authenticated — passed
+  - Update requires admin (403 for non-admin, 200 for admin) — passed
+  - Delete requires admin (403 for non-admin, 204 for admin) — passed
+
+All `properties` tests pass locally.
+
+## Issues encountered & fixes (properties)
+- Missing migrations for `properties` resulted in `no such table: properties_property` during tests. Fix: ran `makemigrations` and committed `properties/migrations/0001_initial.py`.
+- `IsLandlord` permission requires `role='LANDLORD'` on the test landlord user; tests were updated to set the role accordingly.
+- Ensured list endpoint requires authentication (project-level choice).
+
+## How to run properties tests
+
+```powershell
+cd "E:\NYUMBA APP\backend\NIKONEKTI_backend"
+.\venv\Scripts\Activate.ps1
+python manage.py test properties
+```
+
+---
+API docs updated to include properties endpoints and local test results.
 
 - Success response (HTTP 200):
 
