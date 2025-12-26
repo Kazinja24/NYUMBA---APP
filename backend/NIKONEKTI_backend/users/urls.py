@@ -11,7 +11,7 @@ app_name = "users"
 
 urlpatterns = [
     path("login/", LoginAPIView.as_view(), name="users-login"),
-     path('register/', RegisterAPIView.as_view(), name='user-register'),
+    path('register/', RegisterAPIView.as_view(), name='user-register'),
     path("logout/", LogoutAPIView.as_view(), name="logout"),
     path("tenant/dashboard/", TenantDashboardAPIView.as_view()),
 ]

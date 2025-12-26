@@ -3,6 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from .models import User
+from django.contrib.auth import authenticate
 
 
 # ======================================================
@@ -10,27 +11,32 @@ from .models import User
 # ======================================================
 
 class LoginSerializer(serializers.Serializer):
-    phone_number = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+    phone_number = serializers.CharField(required=False)
+    password = serializers.CharField(write_only=True, required=False)
 
     def validate(self, data):
         phone_number = data.get('phone_number')
         password = data.get('password')
 
-        user = authenticate(
-            request=self.context.get('request'),
-            phone_number=phone_number,
-            password=password
-        )
-
-        if not user:
-            raise serializers.ValidationError(
-                "Invalid phone number or password"
+        if phone_number and password:
+            user = authenticate(
+                request=self.context.get('request'),
+                phone_number=phone_number,
+                password=password
             )
 
-        if not user.is_active:
+            if not user:
+                raise serializers.ValidationError(
+                    "Invalid phone number or password"
+                )
+
+            if not user.is_active:
+                raise serializers.ValidationError(
+                    "User account is disabled"
+                )
+        else:
             raise serializers.ValidationError(
-                "User account is disabled"
+                "Must include \"phone_number\" and \"password\""
             )
 
         token, _ = Token.objects.get_or_create(user=user)
